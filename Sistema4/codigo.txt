@@ -1,0 +1,71 @@
+<script type="text/javascript">
+			document.getElementById("nombre").addEventListener("keyup", async (e)=>{
+				if(e.target.value.length >= 3){
+					await fetch(`Controlador/Color.php?operacion=ConsultarColor&&nombre=${e.target.value}`)
+					.then( response => response.json())
+					.then( result => {
+						if(result.data){
+							alert("Color ya registrado")
+							$("#nombre").val("");
+						}
+					}).catch( error => console.error(error))
+				}
+			})
+			$(document).ready(() => {
+				/* Creamos el datatable y por medio de la propiedad ajax, le damos la url a consultar y asignamos la propiedad dataSrc, le damos el valor data (ya que es lo que mando desde el controlador)
+				 asigno las columnas donde van, y agrego los botones con su evento onclick para las operaciones
+				 */
+				$("#tabla").DataTable({
+					"ajax": {
+						"url": "Controlador/Color.php?operacion=ConsultarTodos",
+						"dataSrc": "data"
+					},
+					"columns": [{
+							data: "ID"
+						},
+						{
+							data: "color_Nombre"
+						},
+						{
+							defaultContent: "",
+							render(data, type, row) {
+								let btn = `
+									<a href="#addEmployeeModal" class="edit" data-toggle="modal" onclick="consultarUno('${row.ID}')">
+										<i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i>
+									</a>
+									<a href="#deleteEmployeeModal" class="delete" id="delete" data-toggle="modal" onclick="Eliminar('${row.ID}')">
+										<i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i>
+									</a>`;
+
+								return btn;
+							}
+						}
+					],
+					language: {
+						url: `Vista/js/DataTable.config.json`
+					}
+				})
+			})
+			/* 
+				Basicamente definimos una variable consultarUno, donde almacenamoso una funcion, literalmente estoy creando una funcion de una manera difernte
+				dentro de dicha funcion primero asigno la operacion que vamos a realizar (la de actualizar)	
+				Luego hago uso de la funcion fetch para consultar al controlador por medio de js, piensa que es como usar ajax, bueno dicha peticion retorna, y 
+				le asignamos que nos retorne un json (response.json()), luego nos response con un result (podemos colocar cualquier variable dentro, pero yo coloco un objeto
+				para extraer lo que quiero directamente, osea la propiedad data, en dicha propiedad vienen los datos, en el controlador veras como esta esa parte)
+			*/
+			const consultarUno = async (id) => {
+				$("#operacion").val("Actualizar");
+				await fetch("Controlador/Color.php?operacion=ConsultarUno&&id=" + id)
+					.then(response => response.json())
+					.then(({
+						data
+					}) => {
+						$("#id").val(data.ID)
+						$("#nombre").val(data.color_Nombre)
+					}).catch(error => console.error(error))
+			}
+			/* Bueno, en estas dos funciones solo estamos asignando valores, pero son funciones mas cortas ya que solo realizamos una accion */
+			const crear_color = () => $("#operacion").val("Registro")
+			const Eliminar = (id) => $(".ID").val(id)
+			/* El codigo de aqui abajo lo comente porque no le vi la utilidad, osea, lo comente y no vi cambios */
+		</script> -->
